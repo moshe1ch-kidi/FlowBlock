@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+ import React, { useState, useCallback } from 'react';
 import { Play, Square, Settings2, Trash2, RotateCw, Plus, Minus, X, Book, Gauge, RotateCcw, Save, FolderOpen, HelpCircle } from 'lucide-react';
 import { useInterval } from './useInterval';
 import { BlockData, PulseData, BlockType, Direction } from './types';
