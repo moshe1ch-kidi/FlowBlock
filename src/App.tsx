@@ -280,7 +280,7 @@ export default function App() {
           <div className="p-4 border-b border-slate-100 bg-slate-50 hidden lg:block">
             <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">מחסן רכיבים</h2>
           </div>
-          <div className="p-2 lg:p-4 grid grid-rows-2 grid-flow-col auto-cols-max lg:grid-rows-none lg:grid-cols-2 lg:auto-cols-auto gap-2 lg:gap-3 overflow-x-auto lg:overflow-y-auto hide-scrollbar shrink-0 w-full">
+          <div className="p-2 lg:p-4 flex flex-col flex-wrap lg:grid lg:grid-cols-2 gap-2 lg:gap-3 overflow-x-auto lg:overflow-y-auto hide-scrollbar shrink-0 w-full content-start items-start h-[140px] lg:h-auto">
             {TOOLS.map(t => {
               const isSelected = selectedTool === t.id;
               const isLightText = t.id !== 'generator';
@@ -311,30 +311,30 @@ export default function App() {
         </aside>
 
         {/* Center - Canvas area */}
-        <main 
-          ref={canvasContainerRef}
-          className="flex-1 bg-[#F9F9F9] overflow-auto relative p-2 lg:p-8" 
-          style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-        >
-          {/* Zoom Controls */}
-          <div className="fixed lg:absolute lg:bottom-8 lg:left-8 bottom-24 left-4 z-40 flex flex-col shadow-xl bg-white border border-slate-200 rounded-xl overflow-hidden shrink-0">
-            <button onClick={() => setZoomMultiplier(z => Math.min(4, z + 0.3))} className="p-3 bg-white hover:bg-slate-50 text-slate-700 font-bold active:bg-slate-100 transition-colors border-b border-slate-100">
-              <Plus size={20} />
-            </button>
-            <button onClick={() => setZoomMultiplier(z => Math.max(0.5, z - 0.3))} className="p-3 bg-white hover:bg-slate-50 text-slate-700 font-bold active:bg-slate-100 transition-colors border-b border-slate-100">
-              <Minus size={20} />
-            </button>
-            <button onClick={() => setZoomMultiplier(1)} className="p-3 bg-white hover:bg-slate-50 text-slate-500 font-bold active:bg-slate-100 transition-colors" title="אפס זום">
-              <span className="text-[10px] font-black tracking-widest block w-5 text-center">1X</span>
-            </button>
-          </div>
+        <div className="flex-1 flex flex-col relative min-w-0" ref={canvasContainerRef}>
+          <main 
+            className="flex-1 bg-[#F9F9F9] overflow-auto relative p-4 lg:p-8" 
+            style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+          >
+            {/* Zoom Controls */}
+            <div className="fixed lg:absolute lg:bottom-8 lg:left-8 bottom-24 left-4 z-40 flex flex-col shadow-xl bg-white border border-slate-200 rounded-xl overflow-hidden shrink-0">
+              <button onClick={() => setZoomMultiplier(z => Math.min(4, z + 0.3))} className="p-3 bg-white hover:bg-slate-50 text-slate-700 font-bold active:bg-slate-100 transition-colors border-b border-slate-100">
+                <Plus size={20} />
+              </button>
+              <button onClick={() => setZoomMultiplier(z => Math.max(0.5, z - 0.3))} className="p-3 bg-white hover:bg-slate-50 text-slate-700 font-bold active:bg-slate-100 transition-colors border-b border-slate-100">
+                <Minus size={20} />
+              </button>
+              <button onClick={() => setZoomMultiplier(1)} className="p-3 bg-white hover:bg-slate-50 text-slate-500 font-bold active:bg-slate-100 transition-colors" title="אפס זום">
+                <span className="text-[10px] font-black tracking-widest block w-5 text-center">1X</span>
+              </button>
+            </div>
 
-          <div className="w-max h-max mx-auto">
-            <div style={{ width: GRID_W * CELL_SIZE * (canvasScale * zoomMultiplier), height: GRID_H * CELL_SIZE * (canvasScale * zoomMultiplier) }} className="relative shrink-0 transition-all duration-300">
-              <div dir="ltr"
-                className="absolute top-0 left-0 bg-white shadow-xl rounded-xl border-4 border-[#E2E8F0] grid-canvas flex-shrink-0 transition-transform duration-300 overflow-hidden"
-                style={{ width: GRID_W * CELL_SIZE, height: GRID_H * CELL_SIZE, transform: `scale(${canvasScale * zoomMultiplier})`, transformOrigin: 'top left' }}
-              >
+            <div className="w-max h-max mx-auto lg:my-auto my-0 flex items-center justify-center min-h-full">
+              <div style={{ width: GRID_W * CELL_SIZE * (canvasScale * zoomMultiplier), height: GRID_H * CELL_SIZE * (canvasScale * zoomMultiplier) }} className="relative shrink-0 transition-all duration-300">
+                <div dir="ltr"
+                  className="absolute top-0 left-0 bg-white shadow-xl rounded-xl border-4 border-[#E2E8F0] grid-canvas flex-shrink-0 transition-transform duration-300 overflow-hidden"
+                  style={{ width: GRID_W * CELL_SIZE, height: GRID_H * CELL_SIZE, transform: `scale(${canvasScale * zoomMultiplier})`, transformOrigin: 'top left' }}
+                >
               {/* Grid Interactivity Layer */}
             <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${GRID_W}, 1fr)`, gridTemplateRows: `repeat(${GRID_H}, 1fr)` }}>
               {Array.from({ length: GRID_W * GRID_H }).map((_, i) => {
@@ -490,6 +490,7 @@ export default function App() {
           </div>
           </div>
         </main>
+        </div>
 
         {/* Right Sidebar - Properties & Challenges */}
         <aside className={cn(
