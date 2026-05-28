@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+ import React, { useState, useCallback } from 'react';
 import { Play, Square, Settings2, Trash2, RotateCw, Plus, Minus, X, Book, Gauge, RotateCcw, Save, FolderOpen, HelpCircle } from 'lucide-react';
 import { useInterval } from './useInterval';
 import { BlockData, PulseData, BlockType, Direction } from './types';
@@ -31,17 +31,24 @@ export default function App() {
 
   React.useEffect(() => {
     if (!canvasContainerRef.current) return;
+    let raf: number;
     const observer = new ResizeObserver((entries) => {
-      const { width, height } = entries[0].contentRect;
-      const targetW = (GRID_W * CELL_SIZE) + 32; 
-      const targetH = (GRID_H * CELL_SIZE) + 32;
-      const scaleW = width / targetW;
-      const scaleH = height / targetH;
-      // Also limit scale max to 1.5 if on wide screen, or just 1
-      setCanvasScale(Math.min(1, scaleW, scaleH));
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const { width, height } = entries[0].contentRect;
+        const targetW = (GRID_W * CELL_SIZE) + 32; 
+        const targetH = (GRID_H * CELL_SIZE) + 32;
+        const scaleW = width / targetW;
+        const scaleH = height / targetH;
+        // Also limit scale max to 1.5 if on wide screen, or just 1
+        setCanvasScale(Math.min(1, scaleW, scaleH));
+      });
     });
     observer.observe(canvasContainerRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Engine loop
@@ -325,7 +332,7 @@ export default function App() {
           <div className="w-max h-max mx-auto">
             <div style={{ width: GRID_W * CELL_SIZE * (canvasScale * zoomMultiplier), height: GRID_H * CELL_SIZE * (canvasScale * zoomMultiplier) }} className="relative shrink-0 transition-all duration-300">
               <div dir="ltr"
-                className="absolute top-0 left-0 bg-white shadow-xl rounded-xl border-4 border-[#E2E8F0] grid-canvas flex-shrink-0 transition-transform duration-300"
+                className="absolute top-0 left-0 bg-white shadow-xl rounded-xl border-4 border-[#E2E8F0] grid-canvas flex-shrink-0 transition-transform duration-300 overflow-hidden"
                 style={{ width: GRID_W * CELL_SIZE, height: GRID_H * CELL_SIZE, transform: `scale(${canvasScale * zoomMultiplier})`, transformOrigin: 'top left' }}
               >
               {/* Grid Interactivity Layer */}
