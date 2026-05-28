@@ -23,13 +23,47 @@ export default function App() {
   const [dragSource, setDragSource] = useState<string | null>(null);
   const [dragTarget, setDragTarget] = useState<string | null>(null);
 
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const canvasContainerRef = React.useRef<HTMLElement>(null);
+  const [canvasScale, setCanvasScale] = useState(1);
+
+  React.useEffect(() => {
+    if (!canvasContainerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      const targetW = (GRID_W * CELL_SIZE) + 32; 
+      const targetH = (GRID_H * CELL_SIZE) + 32;
+      const scaleW = width / targetW;
+      const scaleH = height / targetH;
+      // Also limit scale max to 1.5 if on wide screen, or just 1
+      setCanvasScale(Math.min(1, scaleW, scaleH));
+    });
+    observer.observe(canvasContainerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   // Engine loop
   useInterval(() => {
     if (!isPlaying) return;
     setGlobalTick(t => t + 1);
     const { newBlocks, newPulses } = processTick(blocks, pulses, globalTick);
+    
+    let shouldStop = false;
+    for (const [id, block] of Object.entries(newBlocks)) {
+      if (block.type === 'counter' && block.config.limit > 0) {
+        const oldBlock = blocks[id];
+        if (block.state.count >= block.config.limit && oldBlock && oldBlock.state.count < block.config.limit) {
+          shouldStop = true;
+        }
+      }
+    }
+
     setBlocks(newBlocks);
     setPulses(newPulses);
+
+    if (shouldStop) {
+      setIsPlaying(false);
+    }
   }, isPlaying ? speed / 2 : null);
 
   const handleCellClick = (x: number, y: number) => {
@@ -85,8 +119,6 @@ export default function App() {
       }
     }));
   };
-
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const saveToFile = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(blocks, null, 2));
@@ -176,7 +208,7 @@ export default function App() {
   return (
     <div dir="rtl" className="min-h-screen bg-[#F9F9F9] flex flex-col font-sans select-none overflow-hidden text-slate-800">
       {/* Topbar */}
-      <header className="h-16 border-b border-[#3373CC] bg-[#4C97FF] flex items-center justify-between px-6 shrink-0 z-20 shadow-md">
+      <header className="py-2 lg:h-16 border-b border-[#3373CC] bg-[#4C97FF] flex flex-col lg:flex-row items-center justify-between px-6 shrink-0 z-20 shadow-md gap-3 lg:gap-0">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-black text-xl shadow-inner text-white">FB</div>
           <div className="text-white">
@@ -185,8 +217,8 @@ export default function App() {
           </div>
         </div>
         
-        <div className="flex items-center gap-6 text-white">
-          <div className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+        <div className="flex items-center gap-2 lg:gap-6 text-white w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0 hide-scrollbar shrink-0 px-2 lg:px-0">
+          <div className="flex items-center shrink-0 gap-3 bg-white/10 px-4 py-2 rounded-full border border-white/20">
             <button 
               onClick={() => setIsPlaying(!isPlaying)}
               className={cn("px-4 py-1.5 rounded-full font-bold flex items-center gap-2 transition-all text-xs tracking-wider", isPlaying ? "bg-[#FF6680] text-white hover:bg-[#FF3355] shadow-sm" : "bg-[#59C059] text-white hover:bg-[#389438] shadow-sm")}
@@ -227,17 +259,17 @@ export default function App() {
           </button>
           <input type="file" ref={fileInputRef} onChange={loadFromFile} accept=".json" className="hidden" />
 
-          <button onClick={() => setShowHelp(true)} className="flex items-center gap-1.5 text-xs tracking-widest text-[#3373CC] hover:bg-blue-50 bg-white font-bold ml-2 px-5 py-2.5 rounded-full shadow-sm transition-colors"><Book size={18} /> מדריך רכיבים</button>
+          <button onClick={() => setShowHelp(true)} className="shrink-0 flex items-center gap-1.5 text-xs tracking-widest text-[#3373CC] hover:bg-blue-50 bg-white font-bold ml-2 px-5 py-2.5 rounded-full shadow-sm transition-colors"><Book size={18} /> מדריך רכיבים</button>
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
         {/* Left Sidebar - Palette */}
-        <aside className="w-64 border-l border-slate-200 bg-white flex flex-col shadow-sm z-10 shrink-0">
-          <div className="p-4 border-b border-slate-100 bg-slate-50">
+        <aside className="lg:w-64 w-full border-l lg:border-b-0 border-b border-slate-200 bg-white flex flex-col shadow-sm z-10 shrink-0">
+          <div className="p-4 border-b border-slate-100 bg-slate-50 hidden lg:block">
             <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">מחסן רכיבים</h2>
           </div>
-          <div className="p-4 grid grid-cols-2 gap-3 overflow-y-auto">
+          <div className="p-3 lg:p-4 flex flex-row lg:grid lg:grid-cols-2 gap-3 overflow-x-auto lg:overflow-y-auto hide-scrollbar shrink-0">
             {TOOLS.map(t => {
               const isSelected = selectedTool === t.id;
               const isLightText = t.id !== 'generator';
@@ -246,7 +278,7 @@ export default function App() {
                   key={t.id}
                   onClick={() => { setSelectedTool(t.id); setSelectedCell(null); }}
                   className={cn(
-                    "flex flex-col items-center justify-center p-3 rounded-xl transition-all h-24 cursor-grab border border-black/10",
+                    "flex flex-col shrink-0 items-center justify-center p-2 lg:p-3 rounded-xl transition-all h-20 w-20 lg:h-24 lg:w-auto cursor-grab border border-black/10",
                     isSelected ? "shadow-inner" : "shadow-md hover:brightness-105"
                   )}
                   style={{
@@ -268,12 +300,17 @@ export default function App() {
         </aside>
 
         {/* Center - Canvas area */}
-        <main className="flex-1 bg-[#F9F9F9] overflow-auto relative flex p-8 items-start justify-center" style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
-          <div dir="ltr"
-            className="relative bg-white shadow-xl rounded-xl border-4 border-[#E2E8F0] grid-canvas flex-shrink-0"
-            style={{ width: GRID_W * CELL_SIZE, height: GRID_H * CELL_SIZE }}
-          >
-            {/* Grid Interactivity Layer */}
+        <main 
+          ref={canvasContainerRef}
+          className="flex-1 bg-[#F9F9F9] overflow-auto relative flex p-2 lg:p-8 items-start lg:justify-center justify-center" 
+          style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        >
+          <div style={{ width: GRID_W * CELL_SIZE * canvasScale, height: GRID_H * CELL_SIZE * canvasScale }} className="relative shrink-0">
+            <div dir="ltr"
+              className="absolute top-0 left-0 bg-white shadow-xl rounded-xl border-4 border-[#E2E8F0] grid-canvas flex-shrink-0"
+              style={{ width: GRID_W * CELL_SIZE, height: GRID_H * CELL_SIZE, transform: `scale(${canvasScale})`, transformOrigin: 'top left' }}
+            >
+              {/* Grid Interactivity Layer */}
             <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${GRID_W}, 1fr)`, gridTemplateRows: `repeat(${GRID_H}, 1fr)` }}>
               {Array.from({ length: GRID_W * GRID_H }).map((_, i) => {
                 const x = i % GRID_W;
@@ -424,11 +461,12 @@ export default function App() {
                 }}
               />
             ))}
+            </div>
           </div>
         </main>
 
         {/* Right Sidebar - Properties & Challenges */}
-        <aside className="w-80 border-r border-slate-200 bg-slate-100 flex flex-col shadow-sm shrink-0 z-10">
+        <aside className="w-full lg:w-80 border-t lg:border-t-0 lg:border-r border-slate-200 bg-slate-100 flex flex-col shadow-sm shrink-0 z-10 max-h-[40vh] lg:max-h-full">
           <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-200/50">
             <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
               {selectedBlock ? 'מאפייני בלוק' : 'משימות חקר'}
