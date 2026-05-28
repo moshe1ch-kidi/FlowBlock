@@ -20,6 +20,7 @@ export default function App() {
   const [selectedTool, setSelectedTool] = useState<string>('cursor');
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [showMobileRightSidebar, setShowMobileRightSidebar] = useState(false);
   const [dragSource, setDragSource] = useState<string | null>(null);
   const [dragTarget, setDragTarget] = useState<string | null>(null);
 
@@ -259,6 +260,8 @@ export default function App() {
           </button>
           <input type="file" ref={fileInputRef} onChange={loadFromFile} accept=".json" className="hidden" />
 
+          <button onClick={() => setShowMobileRightSidebar(true)} className="lg:hidden shrink-0 flex items-center gap-1.5 text-xs tracking-widest text-white hover:bg-slate-700 bg-slate-800 font-bold ml-2 px-5 py-2.5 rounded-full shadow-sm transition-colors"><Gauge size={18} /> {selectedCell && blocks[selectedCell] ? 'מאפייני בלוק' : 'משימות חקר'}</button>
+
           <button onClick={() => setShowHelp(true)} className="shrink-0 flex items-center gap-1.5 text-xs tracking-widest text-[#3373CC] hover:bg-blue-50 bg-white font-bold ml-2 px-5 py-2.5 rounded-full shadow-sm transition-colors"><Book size={18} /> מדריך רכיבים</button>
         </div>
       </header>
@@ -269,7 +272,7 @@ export default function App() {
           <div className="p-4 border-b border-slate-100 bg-slate-50 hidden lg:block">
             <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">מחסן רכיבים</h2>
           </div>
-          <div className="p-3 lg:p-4 flex flex-row lg:grid lg:grid-cols-2 gap-3 overflow-x-auto lg:overflow-y-auto hide-scrollbar shrink-0">
+          <div className="p-2 lg:p-4 flex flex-row lg:grid lg:grid-cols-2 gap-2 lg:gap-3 overflow-x-auto lg:overflow-y-auto hide-scrollbar shrink-0">
             {TOOLS.map(t => {
               const isSelected = selectedTool === t.id;
               const isLightText = t.id !== 'generator';
@@ -278,7 +281,7 @@ export default function App() {
                   key={t.id}
                   onClick={() => { setSelectedTool(t.id); setSelectedCell(null); }}
                   className={cn(
-                    "flex flex-col shrink-0 items-center justify-center p-2 lg:p-3 rounded-xl transition-all h-20 w-20 lg:h-24 lg:w-auto cursor-grab border border-black/10",
+                    "flex flex-col shrink-0 items-center justify-center p-1 lg:p-3 rounded-xl transition-all h-16 w-16 lg:h-24 lg:w-auto cursor-grab border border-black/10",
                     isSelected ? "shadow-inner" : "shadow-md hover:brightness-105"
                   )}
                   style={{
@@ -289,10 +292,10 @@ export default function App() {
                     color: isLightText ? 'white' : '#784b00'
                   }}
                 >
-                  <div dir="ltr" className="mb-2 drop-shadow-sm">
-                    <t.icon size={36} strokeWidth={2.5} />
+                  <div dir="ltr" className="mb-0.5 lg:mb-2 drop-shadow-sm">
+                    <t.icon className="w-6 h-6 lg:w-9 lg:h-9" strokeWidth={2.5} />
                   </div>
-                  <span className="text-[11px] font-bold tracking-tighter drop-shadow-sm">{t.label}</span>
+                  <span className="text-[9px] lg:text-[11px] font-bold tracking-tighter drop-shadow-sm truncate w-full text-center">{t.label}</span>
                 </button>
               );
             })}
@@ -466,14 +469,20 @@ export default function App() {
         </main>
 
         {/* Right Sidebar - Properties & Challenges */}
-        <aside className="w-full lg:w-80 border-t lg:border-t-0 lg:border-r border-slate-200 bg-slate-100 flex flex-col shadow-sm shrink-0 z-10 max-h-[40vh] lg:max-h-full">
+        <aside className={cn(
+          "lg:w-80 border-t lg:border-t-0 lg:border-r border-slate-200 bg-slate-100 flex-col shadow-sm shrink-0 lg:max-h-full",
+          showMobileRightSidebar ? "fixed inset-0 z-50 flex" : "hidden lg:flex"
+        )}>
           <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-200/50">
             <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
               {selectedBlock ? 'מאפייני בלוק' : 'משימות חקר'}
             </h2>
+            <button onClick={() => setShowMobileRightSidebar(false)} className="lg:hidden p-2 bg-white rounded-full text-slate-500 hover:bg-slate-200">
+              <X size={16} />
+            </button>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-5">
+          <div className="flex-1 overflow-y-auto p-5 pb-20 lg:pb-5">
             {selectedBlock ? (
                <div className="space-y-6">
                  <div className="flex items-center gap-3 pb-4 border-b border-slate-200">
