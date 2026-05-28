@@ -260,7 +260,7 @@ export default function App() {
           </button>
           <input type="file" ref={fileInputRef} onChange={loadFromFile} accept=".json" className="hidden" />
 
-          <button onClick={() => setShowMobileRightSidebar(true)} className="lg:hidden shrink-0 flex items-center gap-1.5 text-xs tracking-widest text-white hover:bg-slate-700 bg-slate-800 font-bold ml-2 px-5 py-2.5 rounded-full shadow-sm transition-colors"><Gauge size={18} /> {selectedCell && blocks[selectedCell] ? 'מאפייני בלוק' : 'משימות חקר'}</button>
+          <button onClick={() => { setSelectedCell(null); setShowMobileRightSidebar(true); }} className="lg:hidden shrink-0 flex items-center gap-1.5 text-xs tracking-widest text-white hover:bg-slate-700 bg-slate-800 font-bold ml-2 px-5 py-2.5 rounded-full shadow-sm transition-colors"><Gauge size={18} /> משימות חקר</button>
 
           <button onClick={() => setShowHelp(true)} className="shrink-0 flex items-center gap-1.5 text-xs tracking-widest text-[#3373CC] hover:bg-blue-50 bg-white font-bold ml-2 px-5 py-2.5 rounded-full shadow-sm transition-colors"><Book size={18} /> מדריך רכיבים</button>
         </div>
@@ -395,14 +395,14 @@ export default function App() {
                         <>
                           <button 
                             onClick={(e) => { e.stopPropagation(); deleteSelected(); }} 
-                            className="absolute border border-red-200 text-red-500 rounded-lg p-1.5 top-1 left-1 z-30 bg-white/90 shadow-sm hover:bg-red-50 hover:text-red-600 transition-all active:scale-95 backdrop-blur-sm"
+                            className="hidden lg:block absolute border border-red-200 text-red-500 rounded-lg p-1.5 top-1 left-1 z-30 bg-white/90 shadow-sm hover:bg-red-50 hover:text-red-600 transition-all active:scale-95 backdrop-blur-sm"
                             title="מחק"
                           >
                             <Trash2 size={12} />
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); rotateSelected(); }} 
-                            className="absolute border border-slate-200 text-slate-600 rounded-lg p-1.5 top-1 right-1 z-30 bg-white/90 shadow-sm hover:bg-slate-50 hover:text-slate-800 transition-all active:scale-95 backdrop-blur-sm"
+                            className="hidden lg:block absolute border border-slate-200 text-slate-600 rounded-lg p-1.5 top-1 right-1 z-30 bg-white/90 shadow-sm hover:bg-slate-50 hover:text-slate-800 transition-all active:scale-95 backdrop-blur-sm"
                             title="סובב"
                           >
                             <RotateCw size={12} />
@@ -658,6 +658,26 @@ export default function App() {
           </div>
         </aside>
       </div>
+
+      {/* Mobile Floating Action Bar for Selected Tool */}
+      {selectedCell && blocks[selectedCell] && (
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl z-40 flex items-center gap-6 border border-slate-700 animate-in fade-in slide-in-from-bottom-5">
+          <button onClick={rotateSelected} className="flex flex-col items-center justify-center gap-1 hover:text-blue-400 active:scale-95 transition-transform w-12">
+            <RotateCw size={22} />
+            <span className="text-[10px] font-bold tracking-wider mt-1">סובב</span>
+          </button>
+          <div className="w-px h-8 bg-slate-600"></div>
+          <button onClick={() => setShowMobileRightSidebar(true)} className="flex flex-col items-center justify-center gap-1 hover:text-amber-400 active:scale-95 transition-transform w-12">
+            <Settings2 size={22} />
+            <span className="text-[10px] font-bold tracking-wider mt-1">מאפיינים</span>
+          </button>
+          <div className="w-px h-8 bg-slate-600"></div>
+          <button onClick={deleteSelected} className="flex flex-col items-center justify-center gap-1 hover:text-red-400 active:scale-95 transition-transform w-12">
+            <Trash2 size={22} />
+            <span className="text-[10px] font-bold tracking-wider mt-1">מחק</span>
+          </button>
+        </div>
+      )}
 
       {/* Help Modal */}
       <AnimatePresence>
