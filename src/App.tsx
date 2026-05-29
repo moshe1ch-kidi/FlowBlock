@@ -1,4 +1,4 @@
- import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Play, Square, Settings2, Trash2, RotateCw, Plus, Minus, X, Book, Gauge, RotateCcw, Save, FolderOpen, HelpCircle } from 'lucide-react';
 import { useInterval } from './useInterval';
 import { BlockData, PulseData, BlockType, Direction } from './types';
@@ -553,7 +553,11 @@ export default function App() {
                      {selectedBlock.config.mode === 'auto' && (
                        <div>
                          <label className="text-[10px] tracking-widest font-bold text-slate-500 mb-1 block">מרווח זמן (פעימות)</label>
-                         <input type="number" min="1" value={selectedBlock.config.interval} onChange={e => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, interval: parseInt(e.target.value)}}}))} className="w-full bg-white border border-slate-300 shadow-sm rounded-lg p-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#4C97FF]" dir="ltr"/>
+                         <div className="flex items-center gap-2" dir="ltr">
+                           <button onClick={() => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, interval: Math.max(1, selectedBlock.config.interval - 1)}}}))} className="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 active:scale-95 shrink-0"><Minus size={16} /></button>
+                           <input type="number" min="1" value={selectedBlock.config.interval} onChange={e => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, interval: parseInt(e.target.value) || 1}}}))} className="flex-1 min-w-0 bg-white border border-slate-300 shadow-sm rounded-lg p-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#4C97FF] text-center" />
+                           <button onClick={() => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, interval: (selectedBlock.config.interval || 1) + 1}}}))} className="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 active:scale-95 shrink-0"><Plus size={16} /></button>
+                         </div>
                        </div>
                      )}
                      {selectedBlock.config.mode === 'manual' && (
@@ -577,14 +581,17 @@ export default function App() {
                      </div>
                      <div>
                        <label className="text-[10px] tracking-widest font-bold text-slate-500 mb-1 block">הגבלת ספירה (0 = ללא הגבלה)</label>
-                       <input 
-                         type="number" 
-                         min="0" 
-                         value={selectedBlock.config.limit || 0} 
-                         onChange={e => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, limit: parseInt(e.target.value) || 0}}}))} 
-                         className="w-full bg-white border border-slate-300 shadow-sm rounded-lg p-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#4C97FF]" 
-                         dir="ltr"
-                       />
+                       <div className="flex items-center gap-2" dir="ltr">
+                           <button onClick={() => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, limit: Math.max(0, (selectedBlock.config.limit || 0) - 1)}}}))} className="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 active:scale-95 shrink-0"><Minus size={16} /></button>
+                           <input 
+                             type="number" 
+                             min="0" 
+                             value={selectedBlock.config.limit || 0} 
+                             onChange={e => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, limit: parseInt(e.target.value) || 0}}}))} 
+                             className="flex-1 min-w-0 bg-white border border-slate-300 shadow-sm rounded-lg p-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#4C97FF] text-center" 
+                           />
+                           <button onClick={() => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, limit: (selectedBlock.config.limit || 0) + 1}}}))} className="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 active:scale-95 shrink-0"><Plus size={16} /></button>
+                       </div>
                      </div>
                      <button onClick={() => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, state: {...selectedBlock.state, count: 0}}}))} className="w-full py-2 bg-white shadow-sm border border-slate-300 text-slate-600 font-bold rounded-lg hover:bg-slate-50 transition-all text-xs tracking-wider active:translate-y-[1px]">
                         אפס מונה
@@ -608,7 +615,11 @@ export default function App() {
                      {selectedBlock.config.mode === 'cond' && (
                        <div>
                          <label className="text-[10px] tracking-widest font-bold text-slate-500 mb-1 block">שלח X ראשונים למעלה, והשאר למטה:</label>
-                         <input type="number" min="1" value={selectedBlock.config.threshold} onChange={e => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, threshold: parseInt(e.target.value)}}}))} className="w-full bg-white border border-slate-300 shadow-sm rounded-lg p-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#4C97FF]" dir="ltr"/>
+                         <div className="flex items-center gap-2" dir="ltr">
+                           <button onClick={() => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, threshold: Math.max(1, (selectedBlock.config.threshold || 1) - 1)}}}))} className="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 active:scale-95 shrink-0"><Minus size={16} /></button>
+                           <input type="number" min="1" value={selectedBlock.config.threshold} onChange={e => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, threshold: parseInt(e.target.value) || 1}}}))} className="flex-1 min-w-0 bg-white border border-slate-300 shadow-sm rounded-lg p-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#4C97FF] text-center" />
+                           <button onClick={() => setBlocks(prev => ({...prev, [selectedBlock.id]: {...selectedBlock, config: {...selectedBlock.config, threshold: (selectedBlock.config.threshold || 1) + 1}}}))} className="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-600 active:scale-95 shrink-0"><Plus size={16} /></button>
+                         </div>
                        </div>
                      )}
                    </div>
