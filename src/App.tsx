@@ -221,7 +221,7 @@ export default function App() {
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-black text-xl shadow-inner text-white">FB</div>
           <div className="text-white">
-            <h1 className="text-lg font-bold tracking-tight">פלובלוקס וירטואלי</h1>
+            <h1 className="text-lg font-bold tracking-tight">FlowBlock</h1>
             <p className="text-[10px] text-blue-100 tracking-widest">לומדים לוגיקה חישובית</p>
           </div>
         </div>
@@ -493,9 +493,15 @@ export default function App() {
         </div>
 
         {/* Right Sidebar - Properties & Challenges */}
+        {showMobileRightSidebar && (
+          <div 
+            className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm lg:hidden" 
+            onClick={() => setShowMobileRightSidebar(false)}
+          />
+        )}
         <aside className={cn(
-          "lg:w-80 border-t lg:border-t-0 lg:border-r border-slate-200 bg-slate-100 flex-col shadow-sm shrink-0 lg:max-h-full",
-          showMobileRightSidebar ? "fixed inset-0 z-50 flex" : "hidden lg:flex"
+          "lg:w-80 lg:border-t-0 lg:border-r border-slate-200 bg-slate-100 flex-col shadow-sm shrink-0 lg:max-h-full",
+          showMobileRightSidebar ? "fixed inset-y-0 right-0 z-50 flex w-[85vw] max-w-[320px] shadow-2xl border-l" : "hidden lg:flex"
         )}>
           <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-200/50">
             <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
